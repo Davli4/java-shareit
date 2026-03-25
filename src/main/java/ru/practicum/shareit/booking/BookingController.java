@@ -21,6 +21,7 @@ public class BookingController {
 
     private final BookingService bookingService;
     private final ItemRepository itemRepository;
+
     @PostMapping
     public BookingDto create(@RequestHeader(value = HttpHeaders.X_SHARER_USER_ID, required = false) Long userId,
                              @Valid @RequestBody BookingRequestDto requestDto) {

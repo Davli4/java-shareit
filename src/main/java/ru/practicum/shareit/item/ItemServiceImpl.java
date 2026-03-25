@@ -40,7 +40,7 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = itemMapper.toEntity(itemDto);
         item.setOwner(user);
-        if(item.getName() == null || item.getName().isBlank()) {
+        if (item.getName() == null || item.getName().isBlank()) {
             throw new ValidationException("Name is required");
         }
         return  itemMapper.toDto(itemRepository.save(item));
@@ -52,7 +52,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
 
-        if(!item.getOwner().getId().equals(userId)) {
+        if (!item.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Owner id not found");
         }
 
@@ -75,11 +75,11 @@ public class ItemServiceImpl implements ItemService {
 
         ItemWithBookingsDto dto = itemMapper.toDtoWithBookings(item);
 
-        if(item.getOwner().getId().equals(userId)) {
+        if (item.getOwner().getId().equals(userId)) {
             LocalDateTime now = LocalDateTime.now();
 
             List<Booking> lastBookings = bookingRepository.findLastBookingsByItem(itemId,now);
-            if(!lastBookings.isEmpty()) {
+            if (!lastBookings.isEmpty()) {
                 dto.setLastBooking(bookingMapper.toDto(lastBookings.get(0)));
             }
             List<Booking> nextBookings = bookingRepository.findNextBookingsByItem(itemId, now);
@@ -126,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> search(String text) {
-        if(text == null || text.isEmpty()) {
+        if (text == null || text.isEmpty()) {
             return List.of();
         }
         return itemRepository.search(text).stream()
