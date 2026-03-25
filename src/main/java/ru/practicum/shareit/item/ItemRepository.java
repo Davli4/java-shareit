@@ -1,63 +1,15 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-@Repository
-public class ItemRepository {
-    private final Map<Long, Item> items = new HashMap<>();
-    private final Map<Long, List<Item>> userItems = new HashMap<>();
-    private Long nextId = 1L;
+public interface ItemRepository extends JpaRepository<Item, Long> {
+    List<Item> findByOwnerId(Long ownerId);
 
-    public Optional<Item> findById(Long id) {
-        return Optional.ofNullable(items.get(id));
-    }
-
-    public List<Item> findByOwnerId(Long ownerId) {
-        return userItems.getOrDefault(ownerId, new ArrayList<>());
-    }
-
-    public Item save(Item item) {
-        if (item.getId() == null) {
-            item.setId(nextId++);
-        }
-        items.put(item.getId(), item);
-
-        List<Item> userItemList = userItems.computeIfAbsent(item.getOwnerId(),
-                k -> new ArrayList<>());
-
-        boolean found = false;
-        for (int i = 0; i < userItemList.size(); i++) {
-            if (userItemList.get(i).getId().equals(item.getId())) {
-                userItemList.set(i, item);
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            userItemList.add(item);
-        }
-
-        return item;
-    }
-
-    public List<Item> search(String text) {
-        if (text == null || text.isBlank()) {
-            return new ArrayList<>();
-        }
-
-        String lowerText = text.toLowerCase();
-        return items.values().stream()
-                .filter(item -> Boolean.TRUE.equals(item.getAvailable()))
-                .filter(item -> item.getName().toLowerCase().contains(lowerText) ||
-                        item.getDescription().toLowerCase().contains(lowerText))
-                .collect(Collectors.toList());
-    }
+    @Query("SELECT i FROM Item i WHERE i.available = true AND" +
+            "(LOWER(i.name)) LIKE LOWER(CONCAT('%', :text, '%') ) OR " +
+            "LOWER(i.description) LIKE LOWER(CONCAT('%', :text, '%'))")
+    List<Item> search(String text);
 }
