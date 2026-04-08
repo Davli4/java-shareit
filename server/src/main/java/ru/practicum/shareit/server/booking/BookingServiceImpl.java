@@ -48,11 +48,11 @@ public class BookingServiceImpl implements BookingService {
 
         if (requestDto.getStart().isAfter(requestDto.getEnd()) ||
                 requestDto.getStart().equals(requestDto.getEnd())) {
-            throw new NotFoundException("Invalid booking dates");
+            throw new IllegalArgumentException("Invalid booking dates");
         }
 
         if (requestDto.getStart().isBefore(LocalDateTime.now())) {
-            throw new NotFoundException("Start date cannot be in the past");
+            throw new IllegalArgumentException("Invalid booking dates");
         }
 
         Booking booking = bookingMapper.toEntity(requestDto, item, booker, BookingStatus.WAITING);
